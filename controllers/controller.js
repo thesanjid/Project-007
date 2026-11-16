@@ -1,49 +1,111 @@
+
 const projectModel = require("../models/projectModel");
 
-
-// Create
+// ==============================
+// CREATE PROJECT
+// ==============================
 const createProject = async (req, res) => {
   try {
-    const data = await projectModel.create(req.body);
+    const project = await projectModel.create(req.body);
 
-    res.json({
+    return res.status(201).json({
       status: "success",
-      data,
+      message: "Project created successfully",
+      data: project,
     });
   } catch (error) {
-    res.json({ status: "fail", error: error.message });
+    return res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
   }
 };
 
-
-// Read
+// ==============================
+// GET ALL PROJECTS
+// ==============================
 const readProject = async (req, res) => {
-  const data = await projectModel.find();
-  res.json({ status: "success", data });
+  try {
+    const projects = await projectModel.find();
+
+    return res.status(200).json({
+      status: "success",
+      total: projects.length,
+      data: projects,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
 };
 
-
-// Update
+// ==============================
+// UPDATE PROJECT
+// ==============================
 const updateProject = async (req, res) => {
-  const data = await projectModel.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true }
-  );
+  try {
+    const project = await projectModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
-  res.json({ status: "success", data });
+    if (!project) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Project not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Project updated successfully",
+      data: project,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
 };
 
-
-// Delete
+// ==============================
+// DELETE PROJECT
+// ==============================
 const deleteProject = async (req, res) => {
-  await projectModel.findByIdAndDelete(req.params.id);
+  try {
+    const project = await projectModel.findByIdAndDelete(
+      req.params.id
+    );
 
-  res.json({ status: "success", message: "Deleted successfully" });
+    if (!project) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Project not found",
+      });
+    }
+
+    return res.status(200).json({
+      status: "success",
+      message: "Project deleted successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
 };
 
-
-// ✅ EXPORT ALL FUNCTIONS
+// ==============================
+// EXPORT CONTROLLERS
+// ==============================
 module.exports = {
   createProject,
   readProject,
